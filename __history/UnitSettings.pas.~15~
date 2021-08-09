@@ -1,0 +1,781 @@
+unit UnitSettings;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Vcl.StdCtrls, Vcl.DBCtrls, Vcl.Menus, Vcl.ComCtrls, mySQLDbTables;
+
+type
+  TFormSettings = class(TForm)
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    PopupMenuCategory: TPopupMenu;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    ScrollBoxSettings: TScrollBox;
+    GroupBox4: TGroupBox;
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    DBLookupListBoxCategory: TDBLookupListBox;
+    Button1: TButton;
+    DBLookupListBoxModuleAdded: TDBLookupListBox;
+    DBLookupListBoxModuleNotAdded: TDBLookupListBox;
+    DBGridUsers: TDBGrid;
+    ButtonAddUser: TButton;
+    Label4: TLabel;
+    GroupBox2: TGroupBox;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    DBLookupListBoxUsersModule: TDBLookupListBox;
+    DBLookupListBoxUsersAddedModule: TDBLookupListBox;
+    DBLookupListBoxUsersNotAddedModule: TDBLookupListBox;
+    GroupBox3: TGroupBox;
+    Label9: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    DBLookupListBoxUsers: TDBLookupListBox;
+    DBLookupListBoxCategoryAdded: TDBLookupListBox;
+    DBLookupListBoxCategoryNotAdded: TDBLookupListBox;
+    MySQLDatabaseSettings: TMySQLDatabase;
+    PopupMenuUsers: TPopupMenu;
+    N3: TMenuItem;
+    procedure DBGridUsersView();
+    procedure UsersView();
+    procedure UsersModuleView();
+    procedure CategoryView();
+    procedure NewCategory();
+    procedure AddedCategoryView();
+    procedure NotAddedCategoryView();
+    procedure AddedModuleView();
+    procedure NotAddedModuleView();
+    procedure AddCategoryToNoAdded();
+    procedure AddCategoryToAdded();
+    procedure AddModuleToNoAdded();
+    procedure AddModuleToAdded();
+    procedure AddUserModuleToNoAdded();
+    procedure AddUserModuleToAdded();
+    procedure AddedUsersModuleView();
+    procedure NotAddedUsersModuleView();
+    procedure ListBoxAllView();
+    procedure AddCategoryUser(CategoryID : String);
+    procedure DBLookupListBoxUsersClick(Sender: TObject);
+    procedure DBLookupListBoxCategoryAddedDblClick(Sender: TObject);
+    procedure DBLookupListBoxCategoryNotAddedDblClick(Sender: TObject);
+    procedure DBLookupListBoxCategoryClick(Sender: TObject);
+    procedure DBLookupListBoxModuleAddedDblClick(Sender: TObject);
+    procedure DBLookupListBoxModuleNotAddedDblClick(Sender: TObject);
+    procedure DBLookupListBoxUsersModuleClick(Sender: TObject);
+    procedure DBLookupListBoxUsersNotAddedModuleDblClick(Sender: TObject);
+    procedure DBLookupListBoxUsersAddedModuleDblClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure ButtonAddUserClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure DBGridUsersDblClick(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure ScrollBoxSettingsMouseWheelDown(Sender: TObject;
+      Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+    procedure ScrollBoxSettingsMouseWheelUp(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormSettings: TFormSettings;
+  MySQLQuerySettings : TMySQLQuery;
+  DataSourceSettings : TDataSource;
+  CompanyID : String;
+
+implementation
+
+{$R *.dfm}
+
+uses UnitAdduser;
+
+procedure TFormSettings.ListBoxAllView();
+begin
+
+  ScrollBoxSettings.AutoScroll := true;
+
+  CompanyID := '1';
+
+  DBGridUsersView();
+
+  UsersView();
+
+  CategoryView();
+
+  UsersModuleView();
+
+
+
+
+end;
+
+procedure TFormSettings.DBGridUsersDblClick(Sender: TObject);
+var
+i :integer; strUpdate,idUser : String;
+begin
+i := DBGridUsers.SelectedIndex; //номер столбца
+
+ if i = 1 then
+   begin
+     strUpdate := DBGridUsers.DataSource.DataSet.Fields[i].Value;
+     idUser := DBGridUsers.DataSource.DataSet.Fields[0].Value;
+     if not InputQuery('Ввод данных','Введите Логин', strUpdate)
+      then exit;
+       MySQLQuerySettings := TMySQLQuery.Create(Application);
+       MySQLQuerySettings.Database := MySQLDatabaseSettings;
+       MySQLQuerySettings.SQL.Text := 'UPDATE `ListUser` SET '+
+       ' `userLogin` = '''+strUpdate+''' WHERE `ListUser`.`idUser` = '''+idUser+''' ';
+       MySQLQuerySettings.ExecSQL;
+
+       DBGridUsersView();
+   end;
+
+ if i = 2 then
+   begin
+     strUpdate := DBGridUsers.DataSource.DataSet.Fields[i].Value;
+     idUser := DBGridUsers.DataSource.DataSet.Fields[0].Value;
+     if not InputQuery('Ввод данных','Введите имя', strUpdate)
+      then exit;
+       MySQLQuerySettings := TMySQLQuery.Create(Application);
+       MySQLQuerySettings.Database := MySQLDatabaseSettings;
+       MySQLQuerySettings.SQL.Text := 'UPDATE `ListUser` SET '+
+       ' `userName` = '''+strUpdate+''' WHERE `ListUser`.`idUser` = '''+idUser+''' ';
+       MySQLQuerySettings.ExecSQL;
+
+       DBGridUsersView();
+   end;
+
+
+
+
+
+
+end;
+
+procedure TFormSettings.DBGridUsersView();
+begin
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT idUser,UserLogin, UserName FROM ListUser '+
+     'WHERE CompanyID = '''+CompanyID+''' AND userVisible = 1';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBGridUsers.DataSource := DataSourceSettings;
+
+
+end;
+
+procedure TFormSettings.DBLookupListBoxCategoryAddedDblClick(Sender: TObject);
+begin
+    AddCategoryToNoAdded();
+end;
+
+procedure TFormSettings.DBLookupListBoxCategoryClick(Sender: TObject);
+begin
+
+    AddedModuleView();
+    NotAddedModuleView();
+
+end;
+
+procedure TFormSettings.DBLookupListBoxCategoryNotAddedDblClick(
+  Sender: TObject);
+begin
+
+    AddCategoryToAdded();
+end;
+
+procedure TFormSettings.DBLookupListBoxModuleAddedDblClick(Sender: TObject);
+begin
+
+    AddModuleToNoAdded();
+end;
+
+procedure TFormSettings.DBLookupListBoxModuleNotAddedDblClick(Sender: TObject);
+begin
+
+    AddModuleToAdded();
+end;
+
+procedure TFormSettings.DBLookupListBoxUsersAddedModuleDblClick(
+  Sender: TObject);
+begin
+
+    AddUserModuleToNoAdded();
+end;
+
+procedure TFormSettings.DBLookupListBoxUsersClick(Sender: TObject);
+begin
+
+      AddedCategoryView();
+      NotAddedCategoryView();
+
+end;
+
+procedure TFormSettings.DBLookupListBoxUsersModuleClick(Sender: TObject);
+begin
+
+    AddedUsersModuleView();
+    NotAddedUsersModuleView();
+
+end;
+
+procedure TFormSettings.DBLookupListBoxUsersNotAddedModuleDblClick(
+  Sender: TObject);
+begin
+
+     AddUserModuleToAdded();
+end;
+
+procedure TFormSettings.FormCreate(Sender: TObject);
+begin
+    ListBoxAllView();
+    ScrollBoxSettings.AutoScroll := true;
+
+end;
+
+procedure TFormSettings.UsersView();
+begin
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT idUser,userName FROM ListUser '+
+     ' WHERE CompanyID = '''+CompanyID+''' GROUP BY idUser';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxUsers.ListSource := DataSourceSettings;
+     DBLookupListBoxUsers.KeyField := 'idUser';
+     DBLookupListBoxUsers.ListField := 'userName';
+
+     DBLookupListBoxUsers.KeyValue := 1;
+
+     AddedCategoryView();
+     NotAddedCategoryView();
+
+end;
+
+procedure TFormSettings.AddedCategoryView();
+var idUser : string;
+begin
+
+     idUser := DBLookupListBoxUsers.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT ListUserCatID,NameCategory FROM '+
+     ' ListLinkingUserCategory INNER JOIN ListCategoryModule ON CatModuleID = ListCMID '+
+     ' INNER JOIN ListUser ON userID = idUser WHERE idUser = '''+idUser+''' '+
+     ' AND ListLinkingUserCategory.visible = 1'+
+     ' AND ListLinkingUserCategory.CompanyID = '''+CompanyID+''' ';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxCategoryAdded.ListSource := DataSourceSettings;
+     DBLookupListBoxCategoryAdded.KeyField := 'ListUserCatID';
+     DBLookupListBoxCategoryAdded.ListField := 'NameCategory';
+
+end;
+
+procedure TFormSettings.NotAddedCategoryView();
+var idUser : string;
+begin
+
+     idUser := DBLookupListBoxUsers.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT ListUserCatID,NameCategory FROM '+
+     ' ListLinkingUserCategory INNER JOIN ListCategoryModule ON CatModuleID = ListCMID '+
+     ' INNER JOIN ListUser ON userID = idUser WHERE idUser = '''+idUser+''' '+
+     ' AND ListLinkingUserCategory.visible = 0'+
+     ' AND ListLinkingUserCategory.CompanyID = '''+CompanyID+''' ';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxCategoryNotAdded.ListSource := DataSourceSettings;
+     DBLookupListBoxCategoryNotAdded.KeyField := 'ListUserCatID';
+     DBLookupListBoxCategoryNotAdded.ListField := 'NameCategory';
+
+end;
+
+procedure TFormSettings.AddCategoryToNoAdded();
+var ListUserCatID : String;
+begin
+
+     ListUserCatID := DBLookupListBoxCategoryAdded.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'UPDATE ListLinkingUserCategory SET '+
+     ' ListLinkingUserCategory.visible = 0 '+
+     ' WHERE ListUserCatID = '''+ListUserCatID+''' ';
+     MySQLQuerySettings.ExecSQL;
+
+     NotAddedCategoryView();
+     AddedCategoryView();
+     NotAddedUsersModuleView();
+
+end;
+
+procedure TFormSettings.AddCategoryToAdded();
+var ListUserCatID : String;
+begin
+
+     ListUserCatID := DBLookupListBoxCategoryNotAdded.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'UPDATE ListLinkingUserCategory SET '+
+     ' ListLinkingUserCategory.visible = 1 '+
+     ' WHERE ListUserCatID = '''+ListUserCatID+''' ';
+     MySQLQuerySettings.ExecSQL;
+
+     NotAddedCategoryView();
+     AddedCategoryView();
+     NotAddedUsersModuleView();
+
+end;
+
+
+procedure TFormSettings.CategoryView();
+begin
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT ListCMID,NameCategory FROM ListCategoryModule'+
+     ' WHERE Visible = 1 '+
+     ' AND ListCategoryModule.CompanyID = '''+CompanyID+''' ';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxCategory.ListSource := DataSourceSettings;
+     DBLookupListBoxCategory.KeyField := 'ListCMID';
+     DBLookupListBoxCategory.ListField := 'NameCategory';
+
+     DBLookupListBoxCategory.KeyValue := 1;
+
+     AddedModuleView();
+     NotAddedModuleView();
+
+end;
+
+procedure TFormSettings.AddedModuleView();
+var ListCMID : string;
+begin
+
+     ListCMID := DBLookupListBoxCategory.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT ListModCatID,NameModule FROM '+
+     ' ListLinkingModulesCategories INNER JOIN ListModule ON moduleID = ListModuleID '+
+     ' INNER JOIN ListCategoryModule ON categoryID = ListCMID WHERE categoryID = '+
+     ' '''+ListCMID+''' AND ListLinkingModulesCategories.visible = 1 AND '+
+     ' ListLinkingModulesCategories.CompanyID = '''+CompanyID+''' ';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxModuleAdded.ListSource := DataSourceSettings;
+     DBLookupListBoxModuleAdded.KeyField := 'ListModCatID';
+     DBLookupListBoxModuleAdded.ListField := 'NameModule';
+
+end;
+
+procedure TFormSettings.NotAddedModuleView();
+var ListCMID : string;
+begin
+
+     ListCMID := DBLookupListBoxCategory.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT ListModCatID,NameModule FROM '+
+     ' ListLinkingModulesCategories INNER JOIN ListModule ON moduleID = ListModuleID '+
+     ' INNER JOIN ListCategoryModule ON categoryID = ListCMID WHERE categoryID = '+
+     ' '''+ListCMID+''' AND ListLinkingModulesCategories.visible = 0 AND '+
+     ' ListLinkingModulesCategories.CompanyID = '''+CompanyID+''' ';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxModuleNotAdded.ListSource := DataSourceSettings;
+     DBLookupListBoxModuleNotAdded.KeyField := 'ListModCatID';
+     DBLookupListBoxModuleNotAdded.ListField := 'NameModule';
+
+end;
+
+procedure TFormSettings.AddModuleToNoAdded();
+var ListModCatID : string;
+begin
+
+     ListModCatID := DBLookupListBoxModuleAdded.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'UPDATE ListLinkingModulesCategories SET '+
+     ' ListLinkingModulesCategories.visible = 0 '+
+     ' WHERE ListModCatID = '''+ListModCatID+''' ';
+      MySQLQuerySettings.ExecSQL;
+
+     AddedModuleView();
+     NotAddedModuleView();
+     NotAddedUsersModuleView();
+
+end;
+
+procedure TFormSettings.AddModuleToAdded();
+var ListModCatID : string;
+begin
+
+     ListModCatID := DBLookupListBoxModuleNotAdded.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'UPDATE ListLinkingModulesCategories SET visible = 1 '+
+     ' WHERE ListModCatID = '''+ListModCatID+''' ';
+      MySQLQuerySettings.ExecSQL;
+
+     AddedModuleView();
+     NotAddedModuleView();
+     NotAddedUsersModuleView();
+
+end;
+
+procedure TFormSettings.UsersModuleView();
+begin
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT idUser,userName FROM ListUser WHERE '+
+     ' CompanyID = '''+CompanyID+''' GROUP BY idUser';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxUsersModule.ListSource := DataSourceSettings;
+     DBLookupListBoxUsersModule.KeyField := 'idUser';
+     DBLookupListBoxUsersModule.ListField := 'userName';
+
+     DBLookupListBoxUsersModule.KeyValue := 1;
+
+     AddedUsersModuleView();
+     NotAddedUsersModuleView();
+end;
+
+procedure TFormSettings.AddedUsersModuleView();
+var userID : string;
+begin
+
+     userID := DBLookupListBoxUsersModule.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT ListUSID,NameModule FROM ListUserModule '+
+     ' INNER JOIN ListModule ON moduleID = ListModuleID '+
+     ' INNER JOIN ListUser ON userID = idUser WHERE '+
+     ' userID = '''+userID+''' AND  ListUserModule.Visible = 1 AND '+
+     ' ListUserModule.CompanyID = '''+CompanyID+''' ';
+     MySQLQuerySettings.Active := true;
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxUsersAddedModule.ListSource := DataSourceSettings;
+     DBLookupListBoxUsersAddedModule.KeyField := 'ListUSID';
+     DBLookupListBoxUsersAddedModule.ListField := 'NameModule';
+end;
+
+procedure TFormSettings.NotAddedUsersModuleView();
+var userID,SQLText : string;
+begin
+
+     userID := DBLookupListBoxUsersModule.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT moduleID,NameModule FROM '+
+     ' ListLinkingUserCategory INNER JOIN ListUser ON userID = idUser '+
+     ' INNER JOIN ListLinkingModulesCategories ON CatModuleID = CategoryID '+
+     ' INNER JOIN ListModule ON ListModuleID = moduleID '+
+     ' WHERE userID = '''+userID+''' AND ListLinkingUserCategory.visible = 1'+
+     ' AND ListLinkingModulesCategories.Visible = 1  ORDER BY moduleID';
+     MySQLQuerySettings.Active := true;
+
+
+     while not MySQLQuerySettings.Eof do
+      begin
+      SQLText := SQLText + ' AND ListModuleID <> '+ MySQLQuerySettings.Fields[0].AsString;
+      MySQLQuerySettings.Next;
+      end;
+
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT moduleID FROM'+
+     ' ListUserModule WHERE userID = '''+userID+''' AND CompanyID = '''+CompanyID+''' '+
+     ' AND Visible = 1 ';
+     MySQLQuerySettings.Active := true;
+
+
+     while not MySQLQuerySettings.Eof do
+      begin
+      SQLText := SQLText + ' AND ListModuleID <> '+ MySQLQuerySettings.Fields[0].AsString;
+      MySQLQuerySettings.Next;
+      end;
+
+
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'SELECT ListModuleID,NameModule FROM ListModule'+
+     ' WHERE Visible = 1 '+SQLText+' ';
+     MySQLQuerySettings.Active := true;
+
+
+
+     DataSourceSettings := TDataSource.Create(Application);
+     DataSourceSettings.DataSet := MySQLQuerySettings;
+     DBLookupListBoxUsersNotAddedModule.ListSource := DataSourceSettings;
+     DBLookupListBoxUsersNotAddedModule.KeyField := 'ListModuleID';
+     DBLookupListBoxUsersNotAddedModule.ListField := 'NameModule';
+end;
+
+procedure TFormSettings.ScrollBoxSettingsMouseWheelDown(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+    ScrollBoxSettings.VertScrollBar.Position:= ScrollBoxSettings.VertScrollBar.Position + 16;
+end;
+
+procedure TFormSettings.ScrollBoxSettingsMouseWheelUp(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+begin
+    ScrollBoxSettings.VertScrollBar.Position:= ScrollBoxSettings.VertScrollBar.Position - 16;
+end;
+
+procedure TFormSettings.AddUserModuleToNoAdded();
+var ListUSID : string;
+begin
+
+     ListUSID := DBLookupListBoxUsersAddedModule.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'UPDATE ListUserModule SET visible = 0 '+
+     ' WHERE ListUSID = '''+ListUSID+''' ';
+      MySQLQuerySettings.ExecSQL;
+
+     AddedUsersModuleView();
+     NotAddedUsersModuleView();
+end;
+
+procedure TFormSettings.Button1Click(Sender: TObject);
+begin
+    NewCategory();
+end;
+
+procedure TFormSettings.ButtonAddUserClick(Sender: TObject);
+begin
+    FormAddUser.showmodal;
+end;
+
+procedure TFormSettings.AddUserModuleToAdded();
+var ModuleID,UserID : string;
+begin
+
+     ModuleID := DBLookupListBoxUsersNotAddedModule.KeyValue;
+     UserID := DBLookupListBoxUsersModule.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'INSERT INTO `ListUserModule` '+
+     ' (`ListUSID`, `userID`, `moduleID`, `Visible`, `CompanyID`) VALUES '+
+     ' (NULL, '''+UserID+''', '''+ModuleID+''', 1, '''+CompanyID+''')';
+     MySQLQuerySettings.ExecSQL;
+
+     AddedUsersModuleView();
+     NotAddedUsersModuleView();
+end;
+
+procedure TFormSettings.N1Click(Sender: TObject);
+var CategoryID,NameCategory : String;
+begin
+
+    CategoryID := DBLookupListBoxCategory.KeyValue;
+    NameCategory := DBLookupListBoxCategory.SelectedItem;
+    if not InputQuery('Ввод данных','Введите название категории', NameCategory)
+    then exit;
+
+    MySQLQuerySettings := TMySQLQuery.Create(Application);
+    MySQLQuerySettings.Database := MySQLDatabaseSettings;
+    MySQLQuerySettings.SQL.Text := ' UPDATE `ListCategoryModule` SET ' +
+    ' `NameCategory` = '''+NameCategory+''' WHERE `ListCategoryModule`.`ListCMID` = '+
+    ' '''+CategoryID+''' ';
+    MySQLQuerySettings.ExecSQL;
+
+    CategoryView();
+
+end;
+
+procedure TFormSettings.N2Click(Sender: TObject);
+var CategoryID,CategoryName,str: String;
+   WND:HWND;
+   Tip:integer;
+begin
+   WND:=FormSettings.Handle;
+   Tip:=MB_YESNO+MB_ICONINFORMATION+MB_DEFBUTTON1;
+   CategoryName := DBLookupListBoxCategory.SelectedItem;
+   str := 'Вы действительно хотите удалить категорию "'+CategoryName+'"?';
+   case MessageBox(Wnd,Pchar(str),'Окно предупреждения',Tip) of
+     IDYES:
+    begin
+     CategoryID := DBLookupListBoxCategory.KeyValue;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := ' UPDATE `ListCategoryModule` SET `Visible` = 0 ' +
+     ' WHERE `ListCategoryModule`.`ListCMID` = '''+CategoryID+''' ';
+      MySQLQuerySettings.ExecSQL;
+
+     CategoryView();
+    end;
+   end;
+
+
+end;
+
+procedure TFormSettings.N3Click(Sender: TObject);
+var User,str : String;
+   WND:HWND;
+   Tip:integer;
+begin
+   WND:=FormSettings.Handle;
+   Tip:=MB_YESNO+MB_ICONINFORMATION+MB_DEFBUTTON1;
+   User := DBGridUsers.DataSource.DataSet.Fields[1].Value;
+   str := 'Вы действительно хотите удалить пользователя "'+User+'"?';
+   case MessageBox(Wnd,Pchar(str),'Окно предупреждения',Tip) of
+     IDYES:
+     begin
+      User := DBGridUsers.DataSource.DataSet.Fields[0].Value;
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := 'UPDATE `ListUser` SET `userVisible` = 0 '+
+     ' WHERE `ListUser`.`idUser` = '''+User+''' ';
+      MySQLQuerySettings.ExecSQL;
+
+      DBGridUsersView();
+     end;
+   end;
+
+end;
+
+procedure TFormSettings.NewCategory();
+var NameCategory,CategoryID,SQL,ModuleID : String;
+i : integer;
+
+begin
+     if not InputQuery('Ввод данных','Введите название категории', NameCategory)
+     then exit;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := ' INSERT INTO `ListCategoryModule` '+
+     ' (`ListCMID`,`NameCategory`, `CompanyID`, `Visible`) VALUES '+
+     ' ( NULL, '''+NameCategory+''', '''+CompanyID+''', 1); SELECT LAST_INSERT_ID()';
+      MySQLQuerySettings.Active := true;
+
+     CategoryID := MySQLQuerySettings.Fields[0].AsString;
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := ' SELECT ListModuleID FROM ListModule '+
+     ' WHERE Visible = 1';
+     MySQLQuerySettings.Active := true;
+
+
+
+     SQL := SQL + 'INSERT INTO `ListLinkingModulesCategories`'+
+     '(`companyID`, `categoryID`, `moduleID`, `visible`) VALUES ';
+
+     while not MySQLQuerySettings.Eof do
+     begin
+
+     ModuleID := MySQLQuerySettings.Fields[0].AsString;
+     SQL := SQL + ' ('+CompanyID+','+CategoryID+','+ModuleID+',0), ';
+     MySQLQuerySettings.Next
+
+     end;
+
+     Delete(SQL, Length(SQL)-1, 1);
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := SQL;
+      MySQLQuerySettings.ExecSQL;
+
+     AddCategoryUser(CategoryID);
+     CategoryView();
+
+end;
+
+
+procedure TFormSettings.AddCategoryUser(CategoryID : String);
+var SQL,UserID : String;
+begin
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := ' SELECT idUser FROM `ListUser`'+
+     ' WHERE userVisible = 1';
+     MySQLQuerySettings.Active := true;
+
+     SQL := SQL + 'INSERT INTO `ListLinkingUserCategory` '+
+     ' (`ListUserCatID`, `CatModuleID`, `userID`, `visible`, `CompanyID`) VALUES ';
+
+     while not MySQLQuerySettings.Eof do
+     begin
+
+     UserID := MySQLQuerySettings.Fields[0].AsString;
+     SQL := SQL + ' (NULL,'+CategoryID+','+UserID+',0,'+CompanyID+'), ';
+     MySQLQuerySettings.Next
+
+     end;
+
+     Delete(SQL, Length(SQL)-1, 1);
+
+     MySQLQuerySettings := TMySQLQuery.Create(Application);
+     MySQLQuerySettings.Database := MySQLDatabaseSettings;
+     MySQLQuerySettings.SQL.Text := SQL;
+     MySQLQuerySettings.ExecSQL;
+
+     CategoryView();
+     UsersView()
+
+
+end;
+
+
+
+end.
+

@@ -1,0 +1,64 @@
+unit UnitAdduser;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Mask;
+
+type
+  TFormAddUser = class(TForm)
+    LabelLogin: TLabel;
+    LabelPass: TLabel;
+    LabelPass1: TLabel;
+    LabelName: TLabel;
+    GroupBox: TGroupBox;
+    procedure FormCreate(Sender: TObject);
+    procedure EditLoginKeyPress(Sender: TObject; var Key: Char);
+    procedure EditNameKeyPress(Sender: TObject; var Key: Char);
+    procedure MaskEditPassKeyPress(Sender: TObject; var Key: Char);
+    procedure MaskEditPass1KeyPress(Sender: TObject; var Key: Char);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormAddUser: TFormAddUser;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFormAddUser.EditLoginKeyPress(Sender: TObject; var Key: Char);
+begin
+if (key=#13) then
+editName.SetFocus;
+end;
+
+procedure TFormAddUser.EditNameKeyPress(Sender: TObject; var Key: Char);
+begin
+if (key=#13) then
+MaskEditPass.SetFocus;
+end;
+
+procedure TFormAddUser.FormCreate(Sender: TObject);
+begin
+    LabelPass1.Caption := 'Подтверждение'+#13#10+'пароля';
+    EditLogin.SetFocus;
+end;
+
+procedure TFormAddUser.MaskEditPass1KeyPress(Sender: TObject; var Key: Char);
+begin
+if (key=#13) then
+ButtonCreate.SetFocus;
+end;
+
+procedure TFormAddUser.MaskEditPassKeyPress(Sender: TObject; var Key: Char);
+begin
+if (key=#13) then
+MaskEditPass1.SetFocus;
+end;
+
+end.

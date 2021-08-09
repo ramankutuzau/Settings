@@ -1,0 +1,14 @@
+program Project3;
+
+uses
+  Vcl.Forms,
+  UnitSettings in 'UnitSettings.pas' {FormSettings};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TFormSettings, FormSettings);
+  Application.Run;
+end.

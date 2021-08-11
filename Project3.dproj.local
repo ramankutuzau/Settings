@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.558,G:\settings\Unit3.dfm=G:\settings\UnitSettings.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.474,C:\Users\Dmitry\Desktop\настройки\Project3.dproj=C:\Users\Dmitry\Documents\project_delpf\Project3.dproj</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.558,G:\settings\Unit3.pas=G:\settings\UnitSettings.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.142,C:\Users\Dmitry\Documents\project_delpf\Unit3.pas=C:\Users\Dmitry\Desktop\настройки\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.697,G:\settings\UnitAdduser.pas=G:\settings\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.697,G:\settings\UnitAdduser.dfm=G:\settings\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.142,C:\Users\Dmitry\Documents\project_delpf\Unit3.dfm=C:\Users\Dmitry\Desktop\настройки\Unit3.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.558,G:\settings\UnitSettings.dfm=G:\settings\Unit3.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.028,=G:\settings\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.558,G:\settings\UnitSettings.pas=G:\settings\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.474,C:\Users\Dmitry\Documents\project_delpf\Project3.dproj=C:\Users\Dmitry\Desktop\настройки\Project3.dproj</Transaction>
     <Transaction>1899.12.30 00:00:00.000.513,=C:\Users\Dmitry\Documents\project_delpf\Unit3.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.694,=C:\Users\Dmitry\Documents\project_delpf\Unit3.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.697,G:\settings\Unit1.pas=G:\settings\UnitAdduser.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.028,=G:\settings\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.142,C:\Users\Dmitry\Desktop\настройки\Unit3.dfm=C:\Users\Dmitry\Documents\project_delpf\Unit3.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.142,C:\Users\Dmitry\Desktop\настройки\Unit3.pas=C:\Users\Dmitry\Documents\project_delpf\Unit3.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.697,G:\settings\Unit1.dfm=G:\settings\UnitAdduser.dfm</Transaction>
   </Transactions>
 </BorlandProject>
